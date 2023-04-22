@@ -13,23 +13,26 @@ import std.datetime;
 import std.logger;
 import std.array;
 
+version(Windows) {
+string configFile = "config.json";
+string audioPlayer = "mpg123.exe -T";
+string editor = "notepad";
+}
+else {
 string configFile = "config.json";
 string audioPlayer = "mpg123 -T";
 string editor = "nano";
+}
 
 void main(string[] args)
 {
-    string option;
-    try
-    {
-        option = args[1];
-    }
-    catch (ArrayIndexError)
-    {
+    
+    if(args.length < 2){
         showHelp();
+        return;
     }
 
-    switch (option)
+    switch (args[1])
     {
     case "-h", "--help":
         showHelp();
@@ -38,16 +41,11 @@ void main(string[] args)
         showVersion();
         break;
     case "-s", "--sound":
-        string suboption;
-        try
-        {
-            suboption = args[2];
+        if(args.length < 3){
+        paraEnough();
+        return;
         }
-        catch (ArrayIndexError)
-        {
-            paraEnough();
-        }
-        addSound(suboption);
+        addSound(args[2]);
         break;
     case "-sl", "--soundslist":
         showSoundsList();
@@ -59,35 +57,37 @@ void main(string[] args)
         start();
         break;
     case "--set-audioplayer":
-        string suboption;
-        try
-        {
-            suboption = args[2];
+        if(args.length < 3){
+        paraEnough();
+        return;
         }
-        catch (ArrayIndexError)
-        {
-            paraEnough();
-        }
-        setAudioPlayer(suboption);
+        setAudioPlayer(args[2]);
         break;
     case "edit":
         edit();
         break;
     case "set-editor":
-        string suboption;
-        try
-        {
-            suboption = args[2];
+        if(args.length < 3){
+        paraEnough();
+        return;
         }
-        catch (ArrayIndexError)
-        {
-            paraEnough();
-        }
-        seteditor(suboption);
+        seteditor(args[2]);
+        break;
+    case "init":
+    init();
         break;
     default:
         break;
     }
+}
+
+void init() {
+    std.file.write(configFile, `{
+    "sounds": [
+    ],
+    "todo": [
+    ]
+}`);
 }
 
 void seteditor(string opt)
@@ -280,6 +280,7 @@ immutable helpText_EN_US = `Play Sound Per Date
 
 Usage:
 pspd <Options> [Args]
+pspd init                           Init config file.
 
 Options:
     -h, --help                      Show this helping message.
@@ -291,12 +292,14 @@ Options:
     --set-audioplayer <player>      Set your audio-player like the default what it is "mpg123 -T".
     edit                            Edit config file.
     set-editor                      Set editor about editting config file.
+    init                            Init config file.
 `;
 
 immutable helpText_ZH_CN = `Play Sound Per Date
 
 用法:
 pspd <选项> [参数]
+pspd init                            初始化配置文件
 
 选项:
     -h, --help                       显示这个帮助信息.
@@ -308,6 +311,7 @@ pspd <选项> [参数]
     --set-audioplayer <player>       设置你的音频播放器, 例如默认的 "mpg123 -T".
     edit                             编辑配置文件.
     set-editor                       设置编辑配置文件的编辑器.
+    init                             初始化配置文件
 `;
 
 immutable versionText_EN_US = "Play Sound Per Date (PSPD) " ~ exeVersion ~ "\nCopyright (C) 2023 Plasma";
