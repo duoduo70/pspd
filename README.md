@@ -1,3 +1,1 @@
-# Play Sound Per Date
-
-This is a public domain program, you can use it for free.
+图一乐，以及我成为祸头子后的第一篇代码
